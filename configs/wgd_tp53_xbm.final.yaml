@@ -1,0 +1,42 @@
+data:
+  pyramid_root: /path/to/Pyramid_OUT
+  labels_csv: /path/to/labels_wgd_tp53.csv
+  clinical_csv: /path/to/clinical_numeric.csv
+  sample_col: SampleID
+  label_col: WGD_TP53
+  split_col: split
+  feature_file: pyramid.pt
+  feature_dim: 1536
+  max_tiles: 1500
+  clin_dim: 41
+  clinical_cols: null
+  random_crop_train: false
+  seed: 8766
+
+model:
+  class_path: model.XBM:XBMModel
+  params:
+    split_dims: 1536
+    clin_dim: 41
+    Cross_num_layers: 2
+    Cross_embed_dim: 256
+    Cross_num_heads: 2
+    Classify_dim: 4
+    regression: false
+    use_multiscale: true
+    trans_perciever: true
+
+training:
+  task_type: multiclass
+  output_dir: runs/WGD_TP53_XBM
+  device: cuda:0
+  epochs: 100
+  batch_size: 18
+  num_workers: 4
+  lr: 1.0e-6
+  weight_decay: 1.0e-4
+  class_weights: auto
+  label_smoothing: 0.05
+  monitor: macro_auc
+  seed: 8766
+

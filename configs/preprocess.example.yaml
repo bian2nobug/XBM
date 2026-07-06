@@ -1,0 +1,50 @@
+# Example config for XBM WSI preprocessing.
+# Replace all paths before running.
+
+common:
+  skip_existing: true
+  num_workers: 8
+
+paths:
+  slide_root: /path/to/raw_slides
+  clam_output_root: /path/to/intermediate_clam_tiles
+  h5_output_root: /path/to/final_h5_tiles
+  clam_script: /path/to/CLAM/create_patches_fp.py
+  magnification_table: /path/to/sample_magnification.csv
+  normalization_target: /path/to/target.png
+  preset_map:
+    tcga: /path/to/CLAM/presets/tcga.csv
+    bwh_biopsy: /path/to/CLAM/presets/bwh_biopsy.csv
+    bwh_resection: /path/to/CLAM/presets/bwh_resection.csv
+
+stages:
+  run_clam: true
+  extract_tiles: true
+  downsample: false
+  normalize: true
+  convert_h5: true
+
+clam:
+  segment_parameter: tcga
+  tile_size: 256
+  step_size: 256
+
+tiles:
+  # Use Magnification20 for native 20x inputs. Use Magnification40 when running
+  # extraction on 40x CLAM outputs before optional downsampling.
+  magnification_dir: Magnification20
+  tile_size: 256
+
+downsample:
+  # factor=2 converts 40x 512x512 tiles to 20x-equivalent 256x256 tiles.
+  factor: 2
+
+normalization:
+  # Set true when normalizing *_DownSample.npy files.
+  use_downsample: false
+
+h5:
+  use_downsample: false
+  compression: gzip
+  copy_clam_artifacts: true
+  cleanup_npy: false

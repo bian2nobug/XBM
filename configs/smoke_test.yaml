@@ -1,0 +1,31 @@
+data:
+  pyramid_root: /tmp/xbm_train_smoke/pyramid
+  labels_csv: /tmp/xbm_train_smoke/labels.csv
+  clinical_csv: /tmp/xbm_train_smoke/clinical.csv
+  sample_col: SampleID
+  label_col: label
+  split_col: split
+  feature_file: pyramid.pt
+  feature_dim: 8
+  max_tiles: 8
+  clin_dim: 3
+  clinical_cols: [clin_1, clin_2, clin_3]
+  seed: 8766
+
+model:
+  class_path: xbm_training.smoke_model:SmokeMIL
+  params:
+    in_channels: 11
+    num_classes: 1
+
+training:
+  task_type: binary
+  output_dir: /tmp/xbm_train_smoke/run
+  device: cpu
+  epochs: 2
+  batch_size: 2
+  num_workers: 0
+  lr: 1.0e-3
+  weight_decay: 0.0
+  monitor: -loss
+  seed: 8766

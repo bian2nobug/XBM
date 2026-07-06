@@ -1,0 +1,87 @@
+# ============================================================
+# WSI heatmap generator config (heatmap_config_v2.yaml)
+# ============================================================
+# Coordinate transform: position = coord x scale
+
+# ============================================================
+#                 Commonly tuned parameters (top)
+# ============================================================
+
+# === Smoothing ===
+smoothing:
+  enable: true            # enable smoothing
+  overlap_factor: 1       # overlap factor (1=8 offsets, 2=16 offsets, 4=32 offsets)
+  method: 'mean'          # merge method ('mean', 'max', 'median')
+  offset_step_size: 32    # offset step size (pixels)
+  enable_final: true      # enable final Gaussian smoothing
+  final_sigma: 12.0        # Gaussian smoothing strength
+
+# === Heatmap opacity ===
+alpha: 0.2  # heatmap opacity (0.0=transparent, 1.0=opaque)
+
+# === Position fine-tuning ===
+x_offset: 0  # X offset (positive = right)
+y_offset: 0  # Y offset (positive = down)
+
+# ============================================================
+#                    Thumbnail size limits
+# ============================================================
+thumbnail:
+  scale_upper_limit: 1.0    # scale ratio upper limit
+  scale_lower_limit: 0.001  # scale ratio lower limit
+  max_size: 50000           # max size (pixels)
+  min_size: 100             # min size (pixels)
+
+# ============================================================
+#                    Colorbar config
+# ============================================================
+colorbar:
+  width: 120                # width (pixels)
+  height_ratio: 0.6         # height ratio
+  margin_right: 250         # right margin (pixels)
+  font_size: 64             # font size
+  label_margin: 10          # label margin (pixels)
+  use_high_low_labels: true # use High/Low labels
+  tick_vertical_ratio: 0.95 # tick vertical ratio
+  tick_length: 20           # tick length
+  tick_width: 5             # tick width
+  tick_count: 10            # tick count
+
+# ============================================================
+#                    Title config
+# ============================================================
+title:
+  font_size: 100         # font size
+  margin_bottom: 140     # bottom margin (pixels)
+  color: [0, 0, 0]       # color (R, G, B)
+
+# ============================================================
+#                    Canvas padding
+# ============================================================
+canvas:
+  right_padding: 600   # right padding (colorbar)
+  bottom_padding: 200  # bottom padding (title)
+
+# ============================================================
+#                    Debug options
+# ============================================================
+debug:
+  progress_interval: 5        # progress display interval
+  show_coordinate_debug: false # show coordinate debug info
+
+# ============================================================
+#                 Magnification map (display only)
+# ============================================================
+magnification_map:
+  0: 5    # patch_level=0 -> 5x
+  1: 10   # patch_level=1 -> 10x
+  2: 20   # patch_level=2 -> 20x
+  3: 40   # patch_level=3 -> 40x
+
+# ============================================================
+#                    Available options
+# ============================================================
+available_options:
+  color_maps: ['JET', 'HOT', 'COOL', 'SPRING', 'PARULA', 'TURBO',
+               'VIRIDIS', 'PLASMA', 'INFERNO', 'MAGMA', 'default']
+  normalize_methods: ['close', 'rank', 'minmax', 'zscore', 'log', 'longtail']

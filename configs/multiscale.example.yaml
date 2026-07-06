@@ -1,0 +1,54 @@
+common:
+  skip_existing: true
+  sample_ids: null
+
+paths:
+  # HDF5 files from the preprocessing stage, one folder per sample, each with HE.h5.
+  tile_h5_root: /path/to/2.Tile/SVS/Magnification20
+  # Output folder for HE_noskip.h5 containing HE_images_20x/10x/5x and coordinates.
+  multiscale_h5_root: /path/to/work/H5
+  # Feature roots generated from HE_images_5x, HE_images_10x, and HE_images_20x.
+  feat5_root: /path/to/work/M5x_2
+  feat10_root: /path/to/work/M10x_2
+  feat20_root: /path/to/work/M20x_2
+  # Output folder for per-sample same-FOV pyramid features.
+  pyramid_root: /path/to/work/Pyramid_OUT
+  # Put the downloaded Prov-GigaPath checkpoint at this path.
+  provgigapath_checkpoint: model/prov-gigapath/pytorch_model.bin
+
+stages:
+  build_multiscale_h5: true
+  extract_provgigapath_features: true
+  build_pyramid_features: true
+  stack_instances: false
+
+multiscale_h5:
+  input_h5_name: HE.h5
+  output_h5_name: HE_noskip.h5
+  pad_mode: skip
+  compression_opts: 4
+  fixed_step_20x: [256, 256]
+
+feature_extraction:
+  h5_name: HE_noskip.h5
+  output_suffix: prov_gigapath_feature.npy
+  device: cuda:0
+  batch_size: 16
+  num_workers: 0
+  image_size: 224
+  model_name: hf_hub:prov-gigapath/prov-gigapath
+
+pyramid:
+  h5_name: HE_noskip.h5
+  preferred_feature_name: null
+  dtype: float32
+  fill_zero_for_missing: true
+  save_pt: true
+  save_npy: false
+
+stack:
+  output_name: stacked_fp16_N_M.pt
+  pyramid_filename: pyramid.pt
+  dtype: float16
+  channels: 1536
+  views: 21

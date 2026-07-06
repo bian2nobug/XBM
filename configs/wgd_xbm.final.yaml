@@ -1,0 +1,41 @@
+data:
+  pyramid_root: /path/to/Pyramid_OUT
+  labels_csv: /path/to/labels_wgd.csv
+  clinical_csv: /path/to/clinical_numeric.csv
+  sample_col: SampleID
+  label_col: WGD
+  split_col: split
+  positive_label: WGD-positive
+  feature_file: pyramid.pt
+  feature_dim: 1536
+  max_tiles: 1500
+  clin_dim: 41
+  clinical_cols: null
+  random_crop_train: false
+  seed: 8766
+
+model:
+  class_path: model.XBM:XBMModel
+  params:
+    split_dims: 1536
+    clin_dim: 41
+    Cross_num_layers: 2
+    Cross_embed_dim: 256
+    Cross_num_heads: 2
+    Classify_dim: 1
+    regression: false
+    use_multiscale: true
+    trans_perciever: true
+
+training:
+  task_type: binary
+  output_dir: runs/WGD_XBM
+  device: cuda:0
+  epochs: 100
+  batch_size: 18
+  num_workers: 4
+  lr: 1.0e-6
+  weight_decay: 1.0e-4
+  monitor: roc_auc
+  seed: 8766
+
