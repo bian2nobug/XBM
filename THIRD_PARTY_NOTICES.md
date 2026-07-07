@@ -1,38 +1,55 @@
-# Third-Party Notices and References
+# Third-Party Notices
 
-This repository contains original XBM code together with lightweight adapters, wrappers, and analysis utilities that rely on or are inspired by established open-source software and published computational pathology methods. This file is intended to help users identify relevant upstream projects and references. It is not a substitute for the license files or citation requirements of the corresponding third-party resources.
+This repository contains the implementation of XBM and related analysis utilities for research use in computational pathology.
 
-## Software dependencies
+Several external methods, repositories, pretrained models, and software tools inspired or supported this work. They are acknowledged below for transparency. Unless explicitly stated otherwise, the source code in this repository is released under the MIT License.
 
-The code uses common scientific Python and pathology-processing packages, including PyTorch, torchvision, NumPy, pandas, scikit-learn, h5py, OpenSlide, OpenCV, Pillow, HistomicsTK, timm, optuna, python-igraph, leidenalg, scipy, matplotlib, and umap-learn. Users should follow the licenses and citation instructions of these upstream projects when redistributing or adapting the code.
+## Referenced methods and software
 
-The R analysis scripts use readr, dplyr, tidyr, and ggplot2.
+### CLAM
 
-## Pathology preprocessing and WSI utilities
+This project uses a CLAM-inspired whole-slide image preprocessing workflow, including tissue-region detection, tile extraction, and weakly supervised computational pathology conventions.
 
-Parts of the preprocessing workflow follow the common computational pathology pattern of tissue-region detection, tile-coordinate extraction, quality control, HDF5 storage, and WSI heatmap rendering. The implementation is designed to be compatible with CLAM-style WSI preprocessing conventions and OpenSlide-based slide access. Users should cite the relevant CLAM and OpenSlide resources when these tools or conventions are used in downstream work.
+Users should consult the original CLAM repository and publication for its license terms, usage conditions, and citation requirements.
 
-## Feature extraction and pathology foundation models
+### TransMIL
 
-The repository provides code paths for Prov-GigaPath-style tile feature extraction but does not redistribute Prov-GigaPath weights. Users must obtain foundation-model weights from the original source and follow the corresponding model license and citation requirements.
+This project includes TransMIL-style baseline and reference model definitions for weakly supervised WSI modeling.
 
-## Model components and methodological references
+Users should consult the original TransMIL repository and publication for its license terms, usage conditions, and citation requirements.
 
-Several model components are implemented for architectural reference or ablation-model definition, including attention-based multiple-instance learning, Transformer/TransMIL-style WSI modeling, same-FOV multiscale fusion, CS-MIL-inspired fusion, COAM/Pyramid-style fusion, Integrated Gradients attribution, and attention-based heatmap visualization. When using these components, users should cite the corresponding original methodological papers where appropriate.
+### CS-MIL and multi-scale pathology modeling
 
-Relevant method families include, but are not limited to:
+This project includes multi-scale fusion components and model variants inspired by cross-scale multi-instance learning and related multi-resolution computational pathology methods.
 
-- Attention-based multiple-instance learning.
-- CLAM-style weakly supervised computational pathology workflows.
-- TransMIL and Transformer-based WSI representation learning.
-- Cross-scale multi-instance learning and related same-FOV multiscale pathology models.
-- Integrated Gradients attribution.
-- Prov-GigaPath or other pathology foundation-model feature extractors used to generate tile embeddings.
+Users should consult the corresponding original publications and repositories for their license terms and citation requirements.
 
-## Data, pretrained weights, and trained checkpoints
+### Prov-GigaPath
 
-This repository does not redistribute TCGA, CPTAC, WSIs, molecular labels, clinical tables, pretrained foundation-model weights, or trained XBM checkpoints. Users are responsible for obtaining any required datasets and pretrained weights from their original sources and for complying with the associated data-use agreements, licenses, and citation requirements.
+This project assumes tile-level pathology features can be extracted using pretrained pathology foundation models such as Prov-GigaPath.
 
-## User responsibility
+Users are responsible for complying with the license, model-use policy, and data-use restrictions of any pretrained model used together with this repository.
 
-Before public redistribution or reuse in a derived project, users should verify the licenses of all third-party packages, pretrained weights, datasets, and copied or adapted source files used in their local workflow.
+### HistomicsTK
+
+This project refers to HistomicsTK-based color normalization utilities for H&E stain normalization.
+
+Users should consult the HistomicsTK project for its license terms and citation requirements.
+
+### OpenSlide and WSI tooling
+
+This project may be used together with OpenSlide and related whole-slide image processing tools.
+
+Users should consult the corresponding software licenses and installation requirements.
+
+## License compatibility note
+
+The MIT License in this repository applies to code authored for this project unless otherwise noted.
+
+If users replace, extend, or combine this repository with third-party code, pretrained models, or datasets, they are responsible for complying with all applicable third-party licenses and terms of use.
+
+If any file is directly derived from third-party source code with a different license, the original license terms for that file should be retained and respected.
+
+## Research-use notice
+
+This repository is intended for research and educational use. It is not intended for clinical diagnosis, treatment selection, or direct medical decision-making.
