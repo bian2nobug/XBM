@@ -84,19 +84,6 @@ Pyramid_OUT/
 
 Each `pyramid.pt` should contain a pathology feature tensor shaped `(C, M, 21)`, where `C=1536` for Prov-GigaPath features, `M` is the number of same-FOV instances, and `21 = 1 + 4 + 16` corresponds to 5x, 10x, and 20x views.
 
-## Clinical Features
-
-The final XBM task configs use:
-
-```yaml
-clin_dim: 57
-```
-
-Clinical variables should be supplied as a numeric table with one row per sample. If `clinical_cols: null`, all numeric columns except the sample, label, and split columns are used. For strict reproducibility, provide the ordered list of 57 encoded clinical columns explicitly in the config.
-
-See `docs/clinical_variables.md` for the expected clinical table format.
-
-`examples/clinical.example.csv` is a simplified format example and does not contain the full 57-column encoded clinical template used in the final manuscript configuration.
 
 ## Step 1: WSI Preprocessing
 
