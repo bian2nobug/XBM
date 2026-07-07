@@ -1,0 +1,7 @@
+SampleID,PatientID,WGD,Genome_Doublings,MSI_status,split,cv_fold
+TCGA-CRC-001,TCGA-CRC-P001,WGD-negative,0,MSS,train,0
+TCGA-CRC-002,TCGA-CRC-P002,WGD-positive,1,MSS,train,1
+TCGA-CRC-003,TCGA-CRC-P003,WGD-negative,0,MSS,val,2
+TCGA-CRC-004,TCGA-CRC-P004,WGD-positive,2,MSS,test,
+CPTAC-COAD-001,CPTAC-COAD-P001,WGD-positive,,MSS,external,
+

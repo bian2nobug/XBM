@@ -1,81 +1,65 @@
 # XBM: Cross-scale and Cross-modal Biomarker Prediction Model
 
-This repository provides the core code for XBM, a weakly supervised computational
-pathology framework for patient-level molecular phenotype prediction from
-colorectal cancer H&E whole-slide images.
+XBM is a weakly supervised computational pathology framework for patient-level molecular phenotype prediction from colorectal cancer H&E whole-slide images. The repository contains preprocessing, same-field-of-view multiscale feature construction, model training, evaluation, downstream analysis, and interpretability utilities.
 
-The current release includes:
+## Main Features
 
-1. WSI preprocessing and tile HDF5 construction.
-2. Same-field-of-view multiscale construction.
-3. Prov-GigaPath feature extraction for 5x, 10x, and 20x image branches.
-4. Same-FOV pyramid feature construction with 21 views.
-5. XBM model and baseline model definitions.
-6. Downstream training, evaluation, patient-level split, and cross-validation scripts.
-7. Morphologic clustering, module-level GLM, and genomic characterization scripts.
-8. Data-format documentation and lightweight example CSV files.
-9. Interpretability and WSI heatmap scripts for IG, cross-attention AxG, and scale-fusion maps.
+- WSI preprocessing with tissue/tile coordinate extraction, optional downsampling, H&E color normalization, and HDF5 conversion.
+- Same-field-of-view multiscale construction with 5x, 10x, and 20x branches.
+- Prov-GigaPath feature extraction and 21-view pyramid representation per same-FOV instance.
+- XBM model with FC-AttnPooling scale fusion, pathology sequence encoding, cross-modal clinical fusion, and classification/regression heads.
+- Training, evaluation, cross-validation, and patient-level split scripts.
+- Downstream morphology, genomic-association, Integrated Gradients, cross-attention AxG, and scale-fusion heatmap workflows.
 
-## Repository Structure
+## Repository Layout
 
 ```text
 XBM/
-├── README.md
-├── requirements.txt
-├── configs/
-│   ├── preprocess.example.yaml
-│   ├── multiscale.example.yaml
-│   ├── train.example.yaml
-│   ├── wgd_xbm.final.yaml
-│   ├── wgd_tp53_xbm.final.yaml
-│   └── wgd_xbm.external_cptac.yaml
-├── docs/
-│   ├── data_preparation.md
-│   ├── clinical_variables.md
-│   └── training_protocol.md
-├── examples/
-│   ├── labels_wgd.example.csv
-│   ├── labels_wgd_tp53.example.csv
-│   ├── clinical.example.csv
-│   └── splits.example.csv
-├── scripts/
-│   ├── run_preprocess.py
-│   ├── run_multiscale.py
-│   ├── run_train.py
-│   ├── run_evaluate.py
-│   ├── run_cv.py
-│   ├── make_patient_splits.py
-│   └── build_wgd_tp53_labels.py
+├── configs/                    # Preprocessing, multiscale, training, and final task configs
+├── docs/                       # Data preparation, clinical-variable, and training notes
+├── examples/                   # Lightweight example CSV templates
+├── scripts/                    # CLI entry points for preprocessing, training, evaluation, CV, labels, smoke test
+├── xbm_preprocess/             # WSI preprocessing utilities
+├── xbm_multiscale/             # Same-FOV multiscale and pyramid construction
+├── xbm_training/               # Dataset, metrics, trainer, and model-loading utilities
+├── model/                      # Main XBM, baselines, and added ablation/component definitions
 ├── analysis/
-│   ├── morphology/
-│   │   ├── run_prototype_leiden.py
-│   │   └── run_module_quasibinomial_glm.R
-│   ├── genomics/
-│   │   ├── prepare_xbm_wgd_score_table.py
-│   │   └── run_xbm_wgd_genomic_association.R
-│   └── interpretability/
-│       ├── run_integrated_gradients.py
-│       ├── run_cross_axg.py
-│       └── run_scale_fusion_heatmap.py
-├── xbm_preprocess/
-├── xbm_multiscale/
-├── xbm_training/
-└── model/
-    ├── XBM.py
-    ├── multi_attnmil.py
-    ├── multi_transmil_multiscale_multimodal.py
-    ├── prov-gigapath/
-    │   └── .gitkeep
-    └── submodel/
+│   ├── morphology/             # Prototype-Leiden clustering and module-level GLM
+│   ├── genomics/               # XBM-WGD genomic-association analysis
+│   └── interpretability/       # IG, AxG, scale-fusion, and WSI heatmap scripts
+├── requirements.txt
+├── environment.yml
+├── LICENSE
+└── CITATION.cff
 ```
 
-## Step 1: WSI Preprocessing
+`model/XBM.py` remains the main model entry point. Additional ablation and baseline architecture definitions are placed under `model/ablations/`, `model/baselines/`, and `model/components_extra/`; see `model/MODEL_INVENTORY.md` for the model-level mapping.
 
-The preprocessing step uses CLAM tissue segmentation and tile-coordinate
-extraction, followed by tile extraction, optional 40x-to-20x downsampling,
-HistomicsTK color normalization, and HDF5 conversion.
+The additional model files are provided as architecture definitions and component references. This public code package does not include a full end-to-end ablation-reproduction suite or result-table regeneration pipeline.
 
-Expected input layout:
+## Installation
+
+Create a clean Python environment and install the package dependencies:
+
+```bash
+conda create -n xbm python=3.10 -y
+conda activate xbm
+conda install -c conda-forge openslide libstdcxx-ng libgcc-ng -y
+pip install -r requirements.txt
+```
+
+Alternatively, create the environment from the provided conda file:
+
+```bash
+conda env create -f environment.yml
+conda activate xbm
+```
+
+OpenSlide is required for WSI reading and heatmap rendering. The optional UMAP export in morphology analysis requires `umap-learn`, which is included in `requirements.txt`. R-based downstream scripts require `readr`, `dplyr`, `tidyr`, and `ggplot2`.
+
+## Data Layout
+
+The repository does not redistribute WSIs, molecular labels, clinical tables, pretrained checkpoints, or trained model weights. Prepare local files using this layout:
 
 ```text
 raw_slides/
@@ -83,130 +67,60 @@ raw_slides/
     └── HE.svs
 ```
 
-Run:
-
-```bash
-python scripts/run_preprocess.py --config configs/preprocess.example.yaml
-```
-
-The final preprocessing HDF5 files contain:
-
-```text
-HE_images
-locations
-```
-
-## Step 2: Multiscale Feature Construction
-
-The multiscale step takes preprocessed HDF5 tile files and builds the
-same-field-of-view multiscale feature representation used by XBM.
-
-Run:
-
-```bash
-python scripts/run_multiscale.py --config configs/multiscale.example.yaml
-```
-
-This step performs:
-
-```text
-HE.h5
-  -> HE_noskip.h5 with HE_images_5x / HE_images_10x / HE_images_20x
-  -> Prov-GigaPath features in M5x_2 / M10x_2 / M20x_2
-  -> pyramid.pt with pyr_feat and pyr_mask
-```
-
-The final same-FOV pyramid tensor has shape:
-
-```text
-(C, M, 21)
-```
-
-where `C=1536` for Prov-GigaPath, `M` is the number of 5x anchor fields, and
-`21 = 1 + 4 + 16` corresponds to one 5x view, four 10x views, and sixteen 20x
-views.
-
-## Prov-GigaPath Checkpoint
-
-The Prov-GigaPath pretrained checkpoint is not included in this repository.
-Download it separately and place it here:
-
-```text
-model/prov-gigapath/pytorch_model.bin
-```
-
-The default multiscale config points to:
-
-```yaml
-paths:
-  provgigapath_checkpoint: model/prov-gigapath/pytorch_model.bin
-```
-
-Do not commit the checkpoint file to GitHub.
-
-## Outputs
-
-Preprocessing outputs:
+After preprocessing and multiscale construction, the expected intermediate outputs are:
 
 ```text
 tile_root/
 └── SampleID/
     └── HE.h5
-```
 
-Multiscale HDF5 outputs:
-
-```text
-multiscale_h5_root/
-└── SampleID/
-    └── HE_noskip.h5
-```
-
-Prov-GigaPath feature outputs:
-
-```text
-M5x_2/SampleID/HE_images_5x_prov_gigapath_feature.npy
-M10x_2/SampleID/HE_images_10x_prov_gigapath_feature.npy
-M20x_2/SampleID/HE_images_20x_prov_gigapath_feature.npy
-```
-
-Pyramid outputs:
-
-```text
 Pyramid_OUT/
 └── SampleID/
     ├── pyramid.pt
     └── order.json
 ```
 
-`pyramid.pt` contains:
+Each `pyramid.pt` should contain a pathology feature tensor shaped `(C, M, 21)`, where `C=1536` for Prov-GigaPath features, `M` is the number of same-FOV instances, and `21 = 1 + 4 + 16` corresponds to 5x, 10x, and 20x views.
 
-```text
-pyr_feat
-pyr_mask
-order
-sample_id
+## Clinical Features
+
+The final XBM task configs use:
+
+```yaml
+clin_dim: 57
 ```
 
-## Model Code
+Clinical variables should be supplied as a numeric table with one row per sample. If `clinical_cols: null`, all numeric columns except the sample, label, and split columns are used. For strict reproducibility, provide the ordered list of 57 encoded clinical columns explicitly in the config.
 
-The model folder contains:
+See `docs/clinical_variables.md` for the expected clinical table format.
 
-```text
-XBM.py
-multi_attnmil.py
-multi_transmil_multiscale_multimodal.py
-submodel/
+## Step 1: WSI Preprocessing
+
+Edit `configs/preprocess.example.yaml`, then run:
+
+```bash
+python scripts/run_preprocess.py --config configs/preprocess.example.yaml
 ```
 
-`XBM.py` is the main XBM model. `multi_attnmil.py` and
-`multi_transmil_multiscale_multimodal.py` provide baseline model definitions.
+The preprocessing stage covers CLAM coordinate extraction, tile extraction, optional 40x-to-20x downsampling, HistomicsTK color normalization, and HDF5 conversion.
 
-## Step 3: Downstream Training and Evaluation
+## Step 2: Same-FOV Multiscale Feature Construction
 
-The training step takes `pyramid.pt` files from Step 2, joins them with task
-labels and optional numeric clinical features, and trains a patient-level
-prediction model.
+Place the Prov-GigaPath checkpoint locally, for example:
+
+```text
+model/prov-gigapath/pytorch_model.bin
+```
+
+Then edit `configs/multiscale.example.yaml` and run:
+
+```bash
+python scripts/run_multiscale.py --config configs/multiscale.example.yaml
+```
+
+This stage builds 5x/10x/20x same-FOV HDF5 files, extracts Prov-GigaPath features, and creates the 21-view pyramid representation used by XBM.
+
+## Step 3: Training
 
 Example training run:
 
@@ -214,33 +128,28 @@ Example training run:
 python scripts/run_train.py --config configs/train.example.yaml
 ```
 
-Final WGD training config:
+Final binary WGD task:
 
 ```bash
 python scripts/run_train.py --config configs/wgd_xbm.final.yaml
 ```
 
-WGD x TP53 four-class config:
+WGD x TP53 four-class task:
 
 ```bash
 python scripts/run_train.py --config configs/wgd_tp53_xbm.final.yaml
 ```
 
-Evaluate an existing checkpoint:
+Evaluate a checkpoint:
 
 ```bash
 python scripts/run_evaluate.py \
-  --config configs/train.example.yaml \
+  --config configs/wgd_xbm.final.yaml \
   --checkpoint runs/WGD_XBM/best_model.pt \
   --split test
 ```
 
-The label table should contain a sample ID column, a target label column, and a
-split column such as `train`, `val`, `test`, or `external`.
-
-See `docs/data_preparation.md` and `examples/` for the expected data format.
-
-Training outputs:
+Training outputs are written to the configured `training.output_dir`:
 
 ```text
 runs/WGD_XBM/
@@ -252,31 +161,18 @@ runs/WGD_XBM/
 └── summary.json
 ```
 
-## Data and Label Preparation
+## Cross-Validation
 
-TCGA-CRC and CPTAC-COAD data are not redistributed in this repository. Users
-should prepare local metadata tables and slide-derived feature files.
-
-For TCGA-CRC, WGD labels should be derived from the sample-level `Genome
-Doublings` annotation in the cBioPortal Colorectal Adenocarcinoma TCGA
-PanCancer Atlas dataset. Samples with `Genome Doublings >= 1` are WGD-positive;
-samples with `Genome Doublings = 0` are WGD-negative.
-
-For CPTAC-COAD, the manuscript used the CPTAC pan-cancer proteogenomic WGD
-annotations reported by Chang et al. CPTAC-COAD is intended for external
-validation and should not be used for model selection.
-
-The primary binary WGD task is restricted to MSS CRC samples. The WGD x TP53
-task can be constructed with:
+If the label table contains a `cv_fold` column, run:
 
 ```bash
-python scripts/build_wgd_tp53_labels.py \
-  --input labels_wgd.csv \
-  --output labels_wgd_tp53.csv
+python scripts/run_cv.py \
+  --config configs/wgd_xbm.final.yaml \
+  --fold-col cv_fold \
+  --folds 5
 ```
 
-Patient-level train/test and cross-validation split columns can be generated
-with:
+Patient-level splitting can be generated with:
 
 ```bash
 python scripts/make_patient_splits.py \
@@ -286,37 +182,26 @@ python scripts/make_patient_splits.py \
   --label-col WGD
 ```
 
-## Cross-Validation
+## Label Preparation
 
-If the label table includes a `cv_fold` column, run five-fold training with:
+The binary WGD task expects labels such as:
+
+```text
+WGD-negative
+WGD-positive
+```
+
+The WGD x TP53 four-class task can be constructed with:
 
 ```bash
-python scripts/run_cv.py \
-  --config configs/wgd_xbm.final.yaml \
-  --fold-col cv_fold \
-  --folds 5
+python scripts/build_wgd_tp53_labels.py \
+  --input labels_wgd.csv \
+  --output labels_wgd_tp53.csv
 ```
 
-The held-out TCGA test set and CPTAC external samples should remain outside the
-fold-level model-selection process.
+See `examples/labels_wgd.example.csv`, `examples/labels_wgd_tp53.example.csv`, and `docs/data_preparation.md` for required columns.
 
-## Multiclass Training
-
-For WGD x TP53 and other multiclass tasks, the trainer supports class-weighted
-cross-entropy and label smoothing:
-
-```yaml
-training:
-  task_type: multiclass
-  class_weights: auto
-  label_smoothing: 0.05
-```
-
-Multiclass evaluation reports both macro- and micro-AUROC.
-
-## Downstream Analyses
-
-The released downstream analysis code is under `analysis/`.
+## Downstream Analysis
 
 Morphologic clustering and module-level quasi-binomial GLM:
 
@@ -348,30 +233,21 @@ Rscript analysis/genomics/run_xbm_wgd_genomic_association.R \
   --out-dir /path/to/genomics_association_out
 ```
 
-See `analysis/README.md` and the subfolder README files for required columns,
-default manuscript parameters, and optional arguments.
-
 ## Interpretability and WSI Heatmaps
 
-Interpretability scripts are provided under `analysis/interpretability/`. The
-pipeline covers WSI heatmap generation, model forward with scale-fusion
-extraction, Integrated Gradients, IG heatmaps, cross-attention Attention x
-Gradient (AxG), AxG heatmaps, and 5x/10x/20x scale-fusion heatmaps.
+Interpretability scripts are under `analysis/interpretability/` and include:
 
-Example WSI heatmap smoke test:
-
-```bash
-python analysis/interpretability/run_random_heatmap_smoke.py \
-  --wsi /path/to/SampleID/HE.svs \
-  --h5 /path/to/SampleID/HE.h5 \
-  --out-dir /tmp/xbm_random_heatmap \
-  --patch-level 2 \
-  --patch-size 512 \
-  --normalize-method rank \
-  --save-thumbnail
+```text
+run_random_heatmap_smoke.py
+run_random_model_forward_smoke.py
+run_integrated_gradients.py
+run_ig_heatmap.py
+run_cross_axg.py
+run_axg_heatmap.py
+run_scale_fusion_heatmap.py
 ```
 
-Example one-sample IG and heatmap workflow:
+Example one-sample IG workflow:
 
 ```bash
 python analysis/interpretability/run_integrated_gradients.py \
@@ -395,27 +271,26 @@ python analysis/interpretability/run_ig_heatmap.py \
   --patch-size 512
 ```
 
-For TCGA-style pathomics H5 files tested in this project, `locations` were 20x
-coordinates, so `--patch-level 2 --patch-size 512` was used.
+Use `analysis/interpretability/examples/tcga_smoke_commands.sh` as a complete command template.
 
-OpenSlide must be available for WSI rendering. On servers, install the system
-component with:
+## Smoke Test
+
+A CPU-only smoke test is included for checking installation and script wiring:
 
 ```bash
-conda install -c conda-forge openslide libstdcxx-ng libgcc-ng
+python scripts/run_smoke_test.py
 ```
 
-See `analysis/interpretability/README.md` for the complete interpretability
-and heatmap commands.
+The test creates temporary toy data under `/tmp/xbm_train_smoke`, trains a small model, and evaluates the configured test split.
 
-## Repository Notes
+## GitHub Upload Notes
 
-Do not commit:
+Do not commit local data or generated outputs:
 
 ```text
 raw WSIs
-intermediate .npy files
 HDF5 tile files
+intermediate .npy/.npz files
 pyramid tensors
 model checkpoints
 training runs
@@ -423,5 +298,4 @@ paper PDFs
 manuscript files
 ```
 
-Commit only source code, configs, README files, and lightweight placeholders such
-as `model/prov-gigapath/.gitkeep`.
+The provided `.gitignore` excludes these file types by default. Commit source code, configs, documentation, and lightweight example CSV templates.

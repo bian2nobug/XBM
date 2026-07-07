@@ -17,3 +17,4 @@ python-igraph
 leidenalg
 scipy
 matplotlib
+umap-learn

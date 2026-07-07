@@ -1,0 +1,32 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Local data and model artifacts
+*.npy
+*.npz
+*.h5
+*.bin
+*.svs
+*.tif
+*.tiff
+*.ndpi
+*.mrxs
+*.pt
+*.pth
+*.ckpt
+
+# Local outputs
+runs/
+outputs/
+results/
+heatmaps/
+analysis_outputs/
+smoke_test_run/
+tmp/
+*_out/
+
+# Manuscripts and large local references
+*.pdf
+*.docx
+*.pptx

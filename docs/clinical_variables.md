@@ -1,58 +1,40 @@
 # Clinical Variables
 
-XBM supports structured clinical variables as numeric inputs concatenated to
-the pathology feature tensor. The manuscript used 15 source clinical variables,
-which were harmonized across TCGA-CRC and CPTAC-COAD and then converted into a
-numeric one-hot encoded table.
+XBM supports structured clinical variables as numeric inputs concatenated to the pathology feature tensor. In the released final configuration, the clinical table is represented as a 57-dimensional numeric vector for each sample.
 
 ## Input Format
 
-The training code expects a CSV file with one row per sample:
+The clinical CSV should contain one row per sample:
 
 ```text
 SampleID,<numeric clinical feature 1>,<numeric clinical feature 2>,...
 ```
 
-All clinical feature columns used by the model must be numeric. Categorical
-variables should be converted to one-hot columns before training. Missing values
-should be imputed before model input; the released data loader fills remaining
-missing numeric values with 0.0 as a final guard.
+All columns used by the model must be numeric. Categorical variables should be one-hot encoded before training. Missing values should be imputed before model input; the released data loader fills any remaining missing numeric values with `0.0` as a final guard.
 
-## Harmonization Across Cohorts
+## Cross-Cohort Harmonization
 
-To keep TCGA and CPTAC inputs consistent:
+Use the same clinical encoding template across cohorts:
 
-1. Define the one-hot encoding template from the TCGA-CRC training cohort.
-2. Apply the same column order to CPTAC-COAD.
-3. Add missing one-hot columns to CPTAC-COAD with value 0.
-4. Drop CPTAC-only categories that are absent from the TCGA template unless a
-   predefined harmonization rule maps them to an existing category.
-5. Use the same `clinical_cols` list in all training and external validation
-   configs.
+1. Define the one-hot template from the development cohort.
+2. Apply the same column order to external cohorts.
+3. Add missing one-hot columns with value `0`.
+4. Drop or map cohort-specific categories before model input.
+5. Use the same ordered `clinical_cols` list in training and external-validation configs.
 
 ## Clinical Dimension
 
-The default final configs use:
+The final XBM configs use:
 
 ```yaml
-clin_dim: 41
+clin_dim: 57
 clinical_cols: null
 ```
 
-When `clinical_cols` is `null`, all numeric columns except the sample, label,
-and split columns are used. For strict reproducibility, it is recommended to
-replace `clinical_cols: null` with the exact ordered list of the 41 encoded
-clinical columns used in the manuscript.
+When `clinical_cols` is `null`, all numeric columns except the sample, label, and split columns are used. For strict reproducibility, replace `clinical_cols: null` with the exact ordered list of 57 encoded clinical columns used to build the feature tensor.
 
 ## Pathology-Only and Clinical-Only Settings
 
-For pathology-only experiments, provide no `clinical_csv` and set:
+For pathology-only XBM experiments, set `clin_dim: 0` and omit `clinical_csv`. The current `model/XBM.py` supports this setting by using the slide token as the cross-attention query.
 
-```yaml
-clin_dim: 0
-```
-
-For clinical-only experiments, use a clinical-only model or a separate baseline
-script. The XBM architecture expects pathology tokens and is not intended to be
-used as a pure tabular classifier without modification.
-
+For clinical-only experiments, use a separate tabular baseline model. XBM is designed for pathology-token input and is not intended to serve as a pure tabular classifier.

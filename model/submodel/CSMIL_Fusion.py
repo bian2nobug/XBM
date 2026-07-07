@@ -136,7 +136,6 @@ class CSMIL_MoE_Multiscale(nn.Module):
 '''
 import torch
 import sys
-sys.path.append('/WorkSpace/liudongbo/General_Model_Architecture/model/MultiScale')
 from CSMIL_Fusion import CSMILStyleMultiscaleFusion,CSMIL_MoE_Multiscale
 device = 'cuda:2'
 B, F, M = 10, 1536, 1200

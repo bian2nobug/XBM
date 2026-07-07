@@ -371,7 +371,6 @@ class TokenViT(nn.Module):
 
 '''
 import sys
-sys.path.append('/WorkSpace/liudongbo/General_Model_Architecture/model')
 import torch
 from TokenViT_2 import TokenViT
 
@@ -392,7 +391,6 @@ seq, attn = model(x,
 
 
 import sys
-sys.path.append('/WorkSpace/liudongbo/General_Model_Architecture/tool')
 from model_summary import model_summary
 model_summary(model, input_size=(1, 20000, 1536))
 
@@ -576,7 +574,6 @@ class TokenViT(nn.Module):
 
 '''
 import sys
-sys.path.append('/WorkSpace/liudongbo/General_Model_Architecture/model')
 import torch
 from TokenViT_2 import TokenViT
 
@@ -593,7 +590,6 @@ seq, attn = model(x)
 
 
 import sys
-sys.path.append('/WorkSpace/liudongbo/General_Model_Architecture/tool')
 from model_summary import model_summary
 model_summary(model, input_size=(1, 20000, 1536))
 

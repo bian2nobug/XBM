@@ -21,6 +21,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out-dir", required=True)
     p.add_argument("--coords-key", default="auto")
     p.add_argument("--coord-index-npy", default=None, help="Optional indices mapping model instances to H5 coordinates.")
+    p.add_argument("--allow-first-n-coords", action="store_true", help="Use the first N H5 coordinates when no coordinate-index file is supplied.")
     p.add_argument("--patch-level", type=int, default=2)
     p.add_argument("--patch-size", type=int, default=512)
     p.add_argument("--normalize-method", default="rank")
@@ -41,7 +42,7 @@ def main() -> None:
         "20x": obj["scale_20x"].detach().cpu().float().numpy().reshape(-1),
     }
     n = len(scale_scores["5x"])
-    coords = load_h5_coordinates(args.h5, args.coords_key, n=n, coord_index_npy=args.coord_index_npy)
+    coords = load_h5_coordinates(args.h5, args.coords_key, n=n, coord_index_npy=args.coord_index_npy, allow_first_n=args.allow_first_n_coords)
 
     sample_id = obj.get("sample_id", Path(args.scale_path).stem)
     summary = {

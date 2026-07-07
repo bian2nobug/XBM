@@ -154,6 +154,7 @@ def load_h5_coordinates(
     coords_key: str = "auto",
     n: Optional[int] = None,
     coord_index_npy: Optional[str | Path] = None,
+    allow_first_n: bool = False,
 ) -> np.ndarray:
     import h5py
 
@@ -179,13 +180,15 @@ def load_h5_coordinates(
         if n is not None and len(coords) != n:
             raise ValueError(f"coord_index_npy selected {len(coords)} coordinates, expected n={n}")
     elif n is not None:
+        if not allow_first_n:
+            raise ValueError(
+                "Model instance scores require an explicit coordinate mapping. "
+                "Provide --coord-index-npy, or add --allow-first-n-coords when the "
+                "score order is known to match the first N coordinates in the H5 file."
+            )
         if len(coords) < n:
             raise ValueError(f"H5 contains only {len(coords)} coordinates but n={n} scores were supplied")
         coords = coords[:n]
-        print(
-            "--coord-index-npy was not provided; using the first "
-            f"{n} coordinates from the H5 file."
-        )
     return coords
 
 

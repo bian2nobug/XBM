@@ -1,61 +1,50 @@
 # Downstream Analysis
 
-This folder contains downstream analysis code that corresponds to the manuscript
-sections on:
-
-1. tile-level morphologic clustering and module-level quasi-binomial analysis;
-2. genomic characterization of the XBM-WGD score;
-3. interpretability and WSI heatmap workflows.
-
-The scripts are cleaned, parameterized versions of the analysis code used for
-the manuscript. Local absolute paths, intermediate plotting experiments,
-survival/KM/Cox screening scripts, and unrelated model-comparison scripts are
-not included.
-
-## Folder Layout
+This folder contains downstream analysis utilities for XBM.
 
 ```text
 analysis/
-├── morphology/
-│   ├── run_prototype_leiden.py
-│   ├── run_module_quasibinomial_glm.R
-│   └── README.md
-├── genomics/
-│   ├── prepare_xbm_wgd_score_table.py
-│   ├── run_xbm_wgd_genomic_association.R
-│   └── README.md
-└── interpretability/
-    ├── run_integrated_gradients.py
-    ├── run_cross_axg.py
-    ├── run_scale_fusion_heatmap.py
-    └── README.md
+├── morphology/         # Prototype-Leiden clustering and module-level GLM
+├── genomics/           # XBM-WGD genomic-association analysis
+└── interpretability/   # IG, AxG, scale-fusion, and WSI heatmap workflows
 ```
 
-## Python Dependencies
-
-The morphology clustering script requires the core repository dependencies plus:
+## Morphology
 
 ```bash
-pip install python-igraph leidenalg joblib
+python analysis/morphology/run_prototype_leiden.py \
+  --features /path/to/tile_features.pt \
+  --out-dir /path/to/morphology_cluster_out \
+  --h5-root /path/to/multiscale_h5_root
+
+Rscript analysis/morphology/run_module_quasibinomial_glm.R \
+  --composition /path/to/morphology_cluster_out/tile_cluster_composition_by_sample.csv \
+  --labels /path/to/wgd_labels.csv \
+  --out-dir /path/to/module_glm_out \
+  --sample-col SampleID \
+  --wgd-col WGD
 ```
 
-Optional UMAP output requires:
+## Genomics
 
 ```bash
-pip install umap-learn
+python analysis/genomics/prepare_xbm_wgd_score_table.py \
+  --predictions runs/WGD_XBM/predictions_test.csv \
+  --genomics /path/to/genomics_metrics.csv \
+  --out /path/to/xbm_wgd_genomics_table.csv \
+  --prediction-col prediction
+
+Rscript analysis/genomics/run_xbm_wgd_genomic_association.R \
+  --input /path/to/xbm_wgd_genomics_table.csv \
+  --out-dir /path/to/genomics_association_out
 ```
+
+## Interpretability
+
+The interpretability folder includes WSI heatmap rendering, Integrated Gradients, cross-attention AxG, and 5x/10x/20x scale-fusion heatmaps. See `analysis/interpretability/README.md` for full commands.
 
 ## R Dependencies
-
-The R scripts use:
 
 ```r
 install.packages(c("readr", "dplyr", "tidyr", "ggplot2"))
 ```
-
-
-## Interpretability Notes
-
-The interpretability folder includes scripts for WSI heatmaps, Integrated
-Gradients, cross-attention AxG, and scale-fusion heatmaps. These scripts require
-OpenSlide for WSI rendering.

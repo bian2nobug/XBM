@@ -1,0 +1,27 @@
+name: xbm
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.10
+  - pip
+  - openslide
+  - h5py
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - matplotlib
+  - pillow
+  - pyyaml
+  - tqdm
+  - pip:
+      - openslide-python
+      - opencv-python
+      - histomicstk
+      - timm
+      - optuna
+      - joblib
+      - python-igraph
+      - leidenalg
+      - umap-learn

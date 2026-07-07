@@ -1,19 +1,8 @@
 # XBM Interpretability and WSI Heatmap Analysis
 
-This folder contains XBM interpretability utilities integrated with the main
-repository. The scripts cover WSI heatmap generation and attribution workflows
-for model inspection:
+This folder contains command-line utilities for model inspection and WSI-level visualization in XBM. The scripts should be run from the repository root.
 
-1. WSI heatmap generation;
-2. FC-AttnPooling scale-fusion extraction and 5x/10x/20x heatmaps;
-3. Integrated Gradients instance-, scale-, and feature-level attribution;
-4. Integrated Gradients WSI heatmaps;
-5. cross-attention Attention x Gradient (AxG) attribution and WSI heatmaps.
-
-The scripts are command-line based and are intended to be run from the repository
-root.
-
-## Folder layout
+## Folder Layout
 
 ```text
 analysis/interpretability/
@@ -33,35 +22,43 @@ analysis/interpretability/
     └── model_lib/
 ```
 
-`shared/model_lib/` is kept as an interpretability-compatible model adapter so
-that the gradient and scale-fusion hooks remain reproducible. The main training
-model remains `model/XBM.py`.
+`shared/model_lib/` provides the interpretability-compatible XBM adapter used by the attribution scripts. The main training model is `model/XBM.py`.
 
-## System dependencies
+## Common Inputs
 
-WSI heatmap generation requires OpenSlide. A conda-based installation is usually
-more robust on servers:
+The attribution scripts use four common inputs:
 
-```bash
-conda install -c conda-forge openslide libstdcxx-ng libgcc-ng
+```text
+multi_tensor.pth     # torch tensor shaped [N, C, M, 21]
+label_tensor.pt      # torch tensor shaped [N]
+sample_id.txt        # one SampleID per line
+best_model.pt        # XBM checkpoint
 ```
 
-Python dependencies are listed in the repository-level `requirements.txt`.
-
-## Coordinate convention
-
-For the tested TCGA pathomics H5 files, the coordinate key was `locations` and
-coordinates were in 20x space. The corresponding heatmap parameters were:
+For the final WGD x TP53 setting, typical model arguments are:
 
 ```bash
---patch-level 2
---patch-size 512
+--split-dims 1536
+--clin-dim 57
+--class-dim 4
 ```
 
-Other cohorts may use a different coordinate level. Check the H5 coordinate
-range against the WSI level-0 dimensions before generating heatmaps.
+For binary WGD, use `--class-dim 1`.
 
-## 1. WSI heatmap smoke test
+## Coordinate Inputs
+
+WSI heatmap scripts read coordinates from an H5 file. Supported coordinate keys are:
+
+```text
+locations
+locations_5x_in_20x
+coords
+coordinates
+```
+
+Use `--coord-index-npy` when model-instance order is stored separately from the H5 coordinate order. When the model scores are already aligned to the first `N` H5 coordinates, add `--allow-first-n-coords`.
+
+## 1. WSI Heatmap Smoke Test
 
 ```bash
 python analysis/interpretability/run_random_heatmap_smoke.py \
@@ -74,7 +71,7 @@ python analysis/interpretability/run_random_heatmap_smoke.py \
   --save-thumbnail
 ```
 
-## 2. XBM forward and scale-fusion extraction
+## 2. XBM Forward and Scale-Fusion Extraction
 
 ```bash
 python analysis/interpretability/run_random_model_forward_smoke.py \
@@ -86,6 +83,12 @@ python analysis/interpretability/run_random_model_forward_smoke.py \
   --out-dir /tmp/xbm_scale_fusion \
   --clin-dim 57 \
   --class-dim 4
+```
+
+Output:
+
+```text
+/tmp/xbm_scale_fusion/SampleID_scale_fusion.pth
 ```
 
 ## 3. Integrated Gradients
@@ -103,7 +106,15 @@ python analysis/interpretability/run_integrated_gradients.py \
   --n-steps 50
 ```
 
-## 4. IG WSI heatmap
+Output:
+
+```text
+/tmp/xbm_ig/SampleID_ig.pth
+```
+
+The saved object contains instance-, scale-, and feature-level attribution arrays.
+
+## 4. IG WSI Heatmap
 
 ```bash
 python analysis/interpretability/run_ig_heatmap.py \
@@ -118,7 +129,20 @@ python analysis/interpretability/run_ig_heatmap.py \
   --save-thumbnail
 ```
 
-## 5. Cross-attention AxG and WSI heatmap
+When using the first `N` coordinates in the H5 file:
+
+```bash
+python analysis/interpretability/run_ig_heatmap.py \
+  --ig-path /tmp/xbm_ig/SampleID_ig.pth \
+  --wsi /path/to/SampleID/HE.svs \
+  --h5 /path/to/SampleID/HE.h5 \
+  --allow-first-n-coords \
+  --out-dir /tmp/xbm_ig_heatmap \
+  --patch-level 2 \
+  --patch-size 512
+```
+
+## 5. Cross-Attention AxG and WSI Heatmap
 
 ```bash
 python analysis/interpretability/run_cross_axg.py \
@@ -143,7 +167,7 @@ python analysis/interpretability/run_axg_heatmap.py \
   --save-thumbnail
 ```
 
-## 6. Scale-fusion heatmaps
+## 6. Scale-Fusion Heatmaps
 
 ```bash
 python analysis/interpretability/run_scale_fusion_heatmap.py \
@@ -158,6 +182,22 @@ python analysis/interpretability/run_scale_fusion_heatmap.py \
   --save-thumbnail
 ```
 
-This produces three heatmap folders, one each for 5x, 10x, and 20x scale
-contribution, plus `scale_fusion_summary.csv` and
-`scale_fusion_instance_scores.csv`.
+This produces one heatmap folder per scale:
+
+```text
+scale_5x_heatmap/
+scale_10x_heatmap/
+scale_20x_heatmap/
+scale_fusion_summary.csv
+scale_fusion_instance_scores.csv
+```
+
+## Complete Template
+
+A full command template is provided at:
+
+```text
+analysis/interpretability/examples/tcga_smoke_commands.sh
+```
+
+Edit the paths at the top of the file before running.

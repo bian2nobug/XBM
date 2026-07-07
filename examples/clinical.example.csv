@@ -1,0 +1,7 @@
+SampleID,age_at_diagnosis,sex_male,sex_female,site_colon,site_rectum,cancer_type_COAD,cancer_type_READ,stage_I,stage_II,stage_III,stage_IV
+TCGA-CRC-001,62,1,0,1,0,1,0,0,1,0,0
+TCGA-CRC-002,71,0,1,1,0,1,0,0,0,1,0
+TCGA-CRC-003,58,1,0,0,1,0,1,1,0,0,0
+TCGA-CRC-004,66,0,1,1,0,1,0,0,0,0,1
+CPTAC-COAD-001,69,1,0,1,0,1,0,0,1,0,0
+

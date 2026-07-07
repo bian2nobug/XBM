@@ -9,7 +9,7 @@ data:
   feature_file: pyramid.pt
   feature_dim: 1536
   max_tiles: 1500
-  clin_dim: 41
+  clin_dim: 57
   clinical_cols: null
   random_crop_train: false
   seed: 8766
@@ -18,7 +18,7 @@ model:
   class_path: model.XBM:XBMModel
   params:
     split_dims: 1536
-    clin_dim: 41
+    clin_dim: 57
     Classify_dim: 1
     regression: false
     use_multiscale: true

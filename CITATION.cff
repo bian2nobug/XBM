@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated XBM manuscript."
+title: "XBM: Cross-scale and Cross-modal Biomarker Prediction Model"
+authors:
+  - name: "XBM contributors"
+year: 2026
+license: MIT

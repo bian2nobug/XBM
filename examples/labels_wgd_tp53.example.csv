@@ -1,0 +1,6 @@
+SampleID,PatientID,WGD,TP53_status,WGD_TP53,MSI_status,split,cv_fold
+TCGA-CRC-001,TCGA-CRC-P001,WGD-negative,TP53-WT,TP53-WT_WGD-negative,MSS,train,0
+TCGA-CRC-002,TCGA-CRC-P002,WGD-positive,TP53-MUT,TP53-MUT_WGD-positive,MSS,train,1
+TCGA-CRC-003,TCGA-CRC-P003,WGD-negative,TP53-MUT,TP53-MUT_WGD-negative,MSS,val,2
+TCGA-CRC-004,TCGA-CRC-P004,WGD-positive,TP53-WT,TP53-WT_WGD-positive,MSS,test,
+

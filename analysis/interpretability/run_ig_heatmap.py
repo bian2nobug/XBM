@@ -20,6 +20,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--out-dir", required=True)
     p.add_argument("--coords-key", default="auto")
     p.add_argument("--coord-index-npy", default=None, help="Optional indices mapping model instances to H5 coordinates.")
+    p.add_argument("--allow-first-n-coords", action="store_true", help="Use the first N H5 coordinates when no coordinate-index file is supplied.")
     p.add_argument("--patch-level", type=int, default=2)
     p.add_argument("--patch-size", type=int, default=512)
     p.add_argument("--normalize-method", default="rank")
@@ -38,7 +39,7 @@ def main() -> None:
         raise KeyError(f"instance_attribution not found in {args.ig_path}")
     raw_scores = obj["instance_attribution"].detach().cpu().float().numpy()
     scores = normalize_scores(raw_scores, mode=args.score_normalization)
-    coords = load_h5_coordinates(args.h5, args.coords_key, n=len(scores), coord_index_npy=args.coord_index_npy)
+    coords = load_h5_coordinates(args.h5, args.coords_key, n=len(scores), coord_index_npy=args.coord_index_npy, allow_first_n=args.allow_first_n_coords)
 
     np.save(out_dir / "ig_scores.npy", raw_scores)
     np.save(out_dir / "ig_scores_for_heatmap.npy", scores)

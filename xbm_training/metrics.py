@@ -36,8 +36,13 @@ def binary_metrics(logits, labels, threshold: float = 0.5) -> Tuple[Dict[str, fl
     if len(np.unique(y_true)) == 2:
         metrics["roc_auc"] = float(roc_auc_score(y_true, scores))
         fpr, tpr, th = roc_curve(y_true, scores)
-        best = int(np.argmax(tpr - fpr))
-        best_thr = float(th[best])
+        finite = np.isfinite(th)
+        if finite.any():
+            candidate = np.where(finite)[0]
+            best = int(candidate[np.argmax((tpr - fpr)[candidate])])
+            best_thr = float(th[best])
+        else:
+            best_thr = float(threshold)
         best_pred = (scores >= best_thr).astype(int)
         metrics.update({
             "best_threshold": best_thr,

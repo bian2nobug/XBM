@@ -378,7 +378,7 @@ if __name__ == "__main__":
     torch.manual_seed(0)
 
     B, M, N = 2, 1500, 21
-    n_feats, aux_dim, n_out = 1536, 41, 4
+    n_feats, aux_dim, n_out = 1536, 57, 4
     x = torch.randn(B, n_feats + aux_dim, M, N)
 
     # 1) Classic single-scale TransMIL baseline.

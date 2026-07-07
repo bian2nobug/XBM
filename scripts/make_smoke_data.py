@@ -15,15 +15,16 @@ def main() -> None:
     rng = np.random.default_rng(8766)
     rows = []
     clinical = []
-    splits = ["train", "train", "val", "test"]
-    for i, split in enumerate(splits):
+    splits = ["train", "train", "train", "train", "val", "val", "test", "test"]
+    labels = [0, 1, 0, 1, 0, 1, 0, 1]
+    for i, (split, label) in enumerate(zip(splits, labels)):
         sid = f"S{i + 1}"
         sample_dir = pyramid_root / sid
         sample_dir.mkdir(parents=True, exist_ok=True)
-        feat = torch.tensor(rng.normal(size=(8, 6 + i, 2)), dtype=torch.float32)
+        feat = torch.tensor(rng.normal(size=(8, 6 + (i % 3), 2)), dtype=torch.float32)
         torch.save({"pyr_feat": feat}, sample_dir / "pyramid.pt")
-        rows.append({"SampleID": sid, "label": i % 2, "split": split})
-        clinical.append({"SampleID": sid, "clin_1": float(i), "clin_2": float(i % 2), "clin_3": 1.0})
+        rows.append({"SampleID": sid, "label": label, "split": split})
+        clinical.append({"SampleID": sid, "clin_1": float(i), "clin_2": float(label), "clin_3": 1.0})
     pd.DataFrame(rows).to_csv(root / "labels.csv", index=False)
     pd.DataFrame(clinical).to_csv(root / "clinical.csv", index=False)
     print(root)
