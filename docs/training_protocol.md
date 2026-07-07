@@ -86,5 +86,5 @@ study scripts if needed.
 
 Integrated Gradients, Leiden morphologic clustering, quasi-binomial GLM module
 analysis, and genomic instability analyses are downstream analysis components.
-They are expected to live under an `analysis/` directory when released.
+They are provided under the `analysis/` directory in this repository.
 

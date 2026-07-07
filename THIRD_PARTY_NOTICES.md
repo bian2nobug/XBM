@@ -8,7 +8,7 @@ Several external methods, repositories, pretrained models, and software tools in
 
 ### CLAM
 
-This project uses a CLAM-inspired whole-slide image preprocessing workflow, including tissue-region detection, tile extraction, and weakly supervised computational pathology conventions.
+This project follows a CLAM-inspired whole-slide image preprocessing workflow, including tissue-region detection, tile extraction, and weakly supervised computational pathology conventions.
 
 Users should consult the original CLAM repository and publication for its license terms, usage conditions, and citation requirements.
 

@@ -39,6 +39,8 @@ The additional model files are provided as architecture definitions and componen
 
 ## Installation
 
+Install PyTorch according to your local CUDA or CPU environment before running full training or feature-extraction workflows. The provided conda environment includes PyTorch and torchvision; for CUDA-specific builds, adjust the PyTorch installation to match the local system.
+
 Create a clean Python environment and install the package dependencies:
 
 ```bash
@@ -93,6 +95,8 @@ clin_dim: 57
 Clinical variables should be supplied as a numeric table with one row per sample. If `clinical_cols: null`, all numeric columns except the sample, label, and split columns are used. For strict reproducibility, provide the ordered list of 57 encoded clinical columns explicitly in the config.
 
 See `docs/clinical_variables.md` for the expected clinical table format.
+
+`examples/clinical.example.csv` is a simplified format example and does not contain the full 57-column encoded clinical template used in the final manuscript configuration.
 
 ## Step 1: WSI Preprocessing
 
@@ -283,6 +287,8 @@ python scripts/run_smoke_test.py
 
 The test creates temporary toy data under `/tmp/xbm_train_smoke`, trains a small model, and evaluates the configured test split.
 
+
+
 ## Intended Use and License Notice
 
 This repository is intended for research use in computational pathology and biomedical machine learning. It is not intended for clinical diagnosis, treatment decision-making, or deployment as a medical device.
@@ -290,3 +296,13 @@ This repository is intended for research use in computational pathology and biom
 The source code in this repository is released under the MIT License unless otherwise noted. Third-party methods, repositories, pretrained models, datasets, and software tools that inspired or supported this work are acknowledged in `THIRD_PARTY_NOTICES.md`.
 
 Users are responsible for complying with the licenses and terms of use of any third-party software, pretrained models, datasets, or external tools used together with this repository.
+
+## Citation
+
+If you use this repository, please cite the associated XBM manuscript. Citation metadata is provided in `CITATION.cff`.
+
+
+## License
+
+This repository is released under the MIT License. See `LICENSE` for details. Third-party methods, repositories, pretrained models, datasets, and software tools are acknowledged in `THIRD_PARTY_NOTICES.md`.
+
