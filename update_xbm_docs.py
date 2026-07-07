@@ -1,4 +1,6 @@
-# Model Inventory
+from pathlib import Path
+
+MODEL_INVENTORY = """# Model Inventory
 
 This document summarizes the model definitions included in this repository.
 
@@ -60,3 +62,55 @@ The original modules under `model/submodel/` are retained for compatibility with
 ## Interpretability adapter
 
 The interpretability code under `analysis/interpretability/shared/model_lib/` contains graph-preserving adapter modules used by the attribution and heatmap scripts. These modules are kept separate from the main model implementation to preserve the tested interpretability workflow.
+"""
+
+INTENDED_USE = """## Intended Use and License Notice
+
+This repository is intended for research use in computational pathology and biomedical machine learning. It is not intended for clinical diagnosis, treatment decision-making, or deployment as a medical device.
+
+The source code in this repository is released under the MIT License unless otherwise noted. Third-party methods, repositories, pretrained models, datasets, and software tools that inspired or supported this work are acknowledged in `THIRD_PARTY_NOTICES.md`.
+
+Users are responsible for complying with the licenses and terms of use of any third-party software, pretrained models, datasets, or external tools used together with this repository.
+"""
+
+repo = Path.cwd()
+
+if not (repo / ".git").exists():
+    raise SystemExit("Error: please run this script from the root of the XBM Git repository.")
+
+model_dir = repo / "model"
+model_dir.mkdir(exist_ok=True)
+
+(model_dir / "MODEL_INVENTORY.md").write_text(MODEL_INVENTORY, encoding="utf-8")
+
+readme_changes = model_dir / "README_changes.md"
+if readme_changes.exists():
+    readme_changes.unlink()
+
+readme = repo / "README.md"
+if not readme.exists():
+    raise SystemExit("Error: README.md not found.")
+
+text = readme.read_text(encoding="utf-8")
+
+if "## Intended Use and License Notice" not in text:
+    markers = ["## Citation", "## License", "## Acknowledgements", "## Acknowledgments"]
+    insert_pos = None
+    for marker in markers:
+        idx = text.find(marker)
+        if idx != -1:
+            insert_pos = idx
+            break
+
+    if insert_pos is None:
+        text = text.rstrip() + "\n\n" + INTENDED_USE + "\n"
+    else:
+        text = text[:insert_pos].rstrip() + "\n\n" + INTENDED_USE + "\n\n" + text[insert_pos:].lstrip()
+
+    readme.write_text(text, encoding="utf-8")
+    print("Updated README.md: added Intended Use and License Notice.")
+else:
+    print("README.md already contains Intended Use and License Notice; skipped insertion.")
+
+print("Updated model/MODEL_INVENTORY.md.")
+print("Deleted model/README_changes.md if it existed.")
