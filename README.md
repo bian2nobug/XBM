@@ -283,23 +283,6 @@ python scripts/run_smoke_test.py
 
 The test creates temporary toy data under `/tmp/xbm_train_smoke`, trains a small model, and evaluates the configured test split.
 
-## GitHub Upload Notes
-
-Do not commit local data or generated outputs:
-
-```text
-raw WSIs
-HDF5 tile files
-intermediate .npy/.npz files
-pyramid tensors
-model checkpoints
-training runs
-paper PDFs
-manuscript files
-```
-
-The provided `.gitignore` excludes these file types by default. Commit source code, configs, documentation, and lightweight example CSV templates.
-
 ## Intended Use and License Notice
 
 This repository is intended for research use in computational pathology and biomedical machine learning. It is not intended for clinical diagnosis, treatment decision-making, or deployment as a medical device.
@@ -307,4 +290,3 @@ This repository is intended for research use in computational pathology and biom
 The source code in this repository is released under the MIT License unless otherwise noted. Third-party methods, repositories, pretrained models, datasets, and software tools that inspired or supported this work are acknowledged in `THIRD_PARTY_NOTICES.md`.
 
 Users are responsible for complying with the licenses and terms of use of any third-party software, pretrained models, datasets, or external tools used together with this repository.
-
